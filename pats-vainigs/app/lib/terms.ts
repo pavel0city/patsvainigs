@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { query } from "./db";
 
 export interface Term {
   id: number;
@@ -7,14 +7,12 @@ export interface Term {
   created_at: string;
 }
 
-export function getAllTerms(): Term[] {
-  return db
-    .prepare("SELECT * FROM terms ORDER BY name ASC")
-    .all() as Term[];
+export async function getAllTerms(): Promise<Term[]> {
+  return query<Term>("SELECT * FROM terms ORDER BY name ASC");
 }
 
-export function getTermsMap(): Map<string, string> {
-  const terms = getAllTerms();
+export async function getTermsMap(): Promise<Map<string, string>> {
+  const terms = await getAllTerms();
   const map = new Map<string, string>();
   for (const t of terms) {
     map.set(t.name.toLowerCase(), t.definition);

@@ -12,7 +12,7 @@ export default async function AdminPage() {
   const session = await getSession();
   if (!session || session.role !== "admin") redirect("/");
 
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
 
   return (
     <div>

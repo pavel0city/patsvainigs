@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/app/lib/db";
+import { execute, queryOne } from "@/app/lib/db";
 import { setSession, clearSession } from "@/app/lib/auth";
 import { hashSync, compareSync } from "bcryptjs";
 import { redirect } from "next/navigation";
@@ -19,19 +19,18 @@ export async function register(formData: FormData) {
     return { error: "Password too short. Even we have standards." };
   }
 
-  const existing = db
-    .prepare("SELECT id FROM users WHERE username = ?")
-    .get(username);
+  const existing = await queryOne<{ id: number }>(
+    "SELECT id FROM users WHERE username = ?", [username]
+  );
   if (existing) {
     return { error: "Username taken. You're not that original." };
   }
 
   const hash = hashSync(password, 10);
-  const result = db
-    .prepare(
-      "INSERT INTO users (username, nickname, tag, password_hash) VALUES (?, ?, ?, ?)"
-    )
-    .run(username, nickname, tag, hash);
+  const result = await execute(
+    "INSERT INTO users (username, nickname, tag, password_hash) VALUES (?, ?, ?, ?)",
+    [username, nickname, tag, hash]
+  );
 
   await setSession(Number(result.lastInsertRowid));
   redirect("/");
@@ -45,9 +44,9 @@ export async function login(formData: FormData) {
     return { error: "Fill in the fields. It's not that hard." };
   }
 
-  const user = db
-    .prepare("SELECT id, password_hash FROM users WHERE username = ?")
-    .get(username) as { id: number; password_hash: string } | undefined;
+  const user = await queryOne<{ id: number; password_hash: string }>(
+    "SELECT id, password_hash FROM users WHERE username = ?", [username]
+  );
 
   if (!user || !compareSync(password, user.password_hash)) {
     return { error: "Wrong credentials. Pats vainīgs." };

@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/app/lib/db";
+import { execute, queryOne, query } from "@/app/lib/db";
 import { getSession } from "@/app/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -17,12 +17,14 @@ export async function createTerm(formData: FormData) {
     return { error: "Both fields required." };
   }
 
-  const existing = db.prepare("SELECT id FROM terms WHERE LOWER(name) = LOWER(?)").get(name);
+  const existing = await queryOne<{ id: number }>(
+    "SELECT id FROM terms WHERE LOWER(name) = LOWER(?)", [name]
+  );
   if (existing) {
     return { error: "Term already exists." };
   }
 
-  db.prepare("INSERT INTO terms (name, definition) VALUES (?, ?)").run(name, definition);
+  await execute("INSERT INTO terms (name, definition) VALUES (?, ?)", [name, definition]);
   revalidatePath("/admin/terms");
   revalidatePath("/");
 }
@@ -41,13 +43,15 @@ export async function updateTerm(formData: FormData) {
     return { error: "Both fields required." };
   }
 
-  db.prepare("UPDATE terms SET name = ?, definition = ? WHERE id = ?").run(name, definition, id);
+  await execute("UPDATE terms SET name = ?, definition = ? WHERE id = ?", [name, definition, id]);
   revalidatePath("/admin/terms");
   revalidatePath("/");
 }
 
 export async function checkTermExists(name: string): Promise<boolean> {
-  const row = db.prepare("SELECT id FROM terms WHERE LOWER(name) = LOWER(?)").get(name);
+  const row = await queryOne<{ id: number }>(
+    "SELECT id FROM terms WHERE LOWER(name) = LOWER(?)", [name]
+  );
   return !!row;
 }
 
@@ -61,19 +65,21 @@ export async function quickCreateTerm(name: string, definition: string): Promise
     return { error: "Both fields required." };
   }
 
-  const existing = db.prepare("SELECT id FROM terms WHERE LOWER(name) = LOWER(?)").get(name.trim());
+  const existing = await queryOne<{ id: number }>(
+    "SELECT id FROM terms WHERE LOWER(name) = LOWER(?)", [name.trim()]
+  );
   if (existing) {
     return { error: "Term already exists." };
   }
 
-  db.prepare("INSERT INTO terms (name, definition) VALUES (?, ?)").run(name.trim(), definition.trim());
+  await execute("INSERT INTO terms (name, definition) VALUES (?, ?)", [name.trim(), definition.trim()]);
   revalidatePath("/admin/terms");
   revalidatePath("/");
   return {};
 }
 
 export async function fetchAllTermNames(): Promise<{ name: string }[]> {
-  return db.prepare("SELECT name FROM terms ORDER BY name ASC").all() as { name: string }[];
+  return query<{ name: string }>("SELECT name FROM terms ORDER BY name ASC");
 }
 
 export async function deleteTerm(formData: FormData) {
@@ -83,7 +89,7 @@ export async function deleteTerm(formData: FormData) {
   }
 
   const id = Number(formData.get("id"));
-  db.prepare("DELETE FROM terms WHERE id = ?").run(id);
+  await execute("DELETE FROM terms WHERE id = ?", [id]);
   revalidatePath("/admin/terms");
   revalidatePath("/");
 }

@@ -2,14 +2,14 @@ import type { Post } from "@/app/lib/posts";
 import { getTermsMap } from "@/app/lib/terms";
 import RichContent from "./rich-content";
 
-export default function PostView({ post }: { post: Post }) {
+export default async function PostView({ post }: { post: Post }) {
   const date = new Date(post.created_at + "Z").toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-  const termsMap = getTermsMap();
+  const termsMap = await getTermsMap();
   const termsObj: Record<string, string> = {};
   for (const [k, v] of termsMap) {
     termsObj[k] = v;

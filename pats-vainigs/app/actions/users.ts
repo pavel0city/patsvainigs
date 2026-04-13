@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/app/lib/db";
+import { execute, query } from "@/app/lib/db";
 import { getSession } from "@/app/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -14,9 +14,9 @@ export interface UserRow {
 }
 
 export async function getAllUsers(): Promise<UserRow[]> {
-  return db
-    .prepare("SELECT id, username, nickname, tag, role, created_at FROM users ORDER BY created_at DESC")
-    .all() as UserRow[];
+  return query<UserRow>(
+    "SELECT id, username, nickname, tag, role, created_at FROM users ORDER BY created_at DESC"
+  );
 }
 
 export async function updateUser(formData: FormData) {
@@ -34,11 +34,9 @@ export async function updateUser(formData: FormData) {
     return { error: "Nickname required. Anonymous is taken." };
   }
 
-  db.prepare("UPDATE users SET nickname = ?, tag = ?, role = ? WHERE id = ?").run(
-    nickname,
-    tag,
-    role,
-    id
+  await execute(
+    "UPDATE users SET nickname = ?, tag = ?, role = ? WHERE id = ?",
+    [nickname, tag, role, id]
   );
 
   revalidatePath("/admin/users");
@@ -55,8 +53,8 @@ export async function deleteUser(formData: FormData) {
     return { error: "Can't delete yourself. That's a different kind of problem." };
   }
 
-  db.prepare("DELETE FROM comments WHERE user_id = ?").run(id);
-  db.prepare("DELETE FROM users WHERE id = ?").run(id);
+  await execute("DELETE FROM comments WHERE user_id = ?", [id]);
+  await execute("DELETE FROM users WHERE id = ?", [id]);
   revalidatePath("/admin/users");
 }
 
@@ -71,10 +69,9 @@ export async function updateProfile(formData: FormData) {
     return { error: "You need a name. Even a fake one." };
   }
 
-  db.prepare("UPDATE users SET nickname = ?, tag = ? WHERE id = ?").run(
-    nickname,
-    tag,
-    session.id
+  await execute(
+    "UPDATE users SET nickname = ?, tag = ? WHERE id = ?",
+    [nickname, tag, session.id]
   );
 
   revalidatePath("/");

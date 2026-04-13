@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { db } from "./db";
+import { queryOne } from "./db";
 
 export interface SessionUser {
   id: number;
@@ -14,13 +14,10 @@ export async function getSession(): Promise<SessionUser | null> {
   const sessionId = cookieStore.get("session")?.value;
   if (!sessionId) return null;
 
-  const row = db
-    .prepare(
-      "SELECT id, username, nickname, tag, role FROM users WHERE id = ?"
-    )
-    .get(Number(sessionId)) as SessionUser | undefined;
-
-  return row ?? null;
+  return queryOne<SessionUser>(
+    "SELECT id, username, nickname, tag, role FROM users WHERE id = ?",
+    [Number(sessionId)]
+  );
 }
 
 export async function setSession(userId: number) {

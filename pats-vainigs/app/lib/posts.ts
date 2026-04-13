@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { query, queryOne } from "./db";
 
 export interface Post {
   id: number;
@@ -21,61 +21,48 @@ export interface Comment {
   tag?: string;
 }
 
-export function getLatestPost(): Post | null {
-  return (
-    (db
-      .prepare(
-        `SELECT p.*, u.nickname as author_nickname
-       FROM posts p JOIN users u ON p.author_id = u.id
-       ORDER BY p.created_at DESC LIMIT 1`
-      )
-      .get() as Post | undefined) ?? null
+export async function getLatestPost(): Promise<Post | null> {
+  return queryOne<Post>(
+    `SELECT p.*, u.nickname as author_nickname
+     FROM posts p JOIN users u ON p.author_id = u.id
+     ORDER BY p.created_at DESC LIMIT 1`
   );
 }
 
-export function getAllPosts(): Post[] {
-  return db
-    .prepare(
-      `SELECT p.*, u.nickname as author_nickname
+export async function getAllPosts(): Promise<Post[]> {
+  return query<Post>(
+    `SELECT p.*, u.nickname as author_nickname
      FROM posts p JOIN users u ON p.author_id = u.id
      ORDER BY p.created_at DESC`
-    )
-    .all() as Post[];
-}
-
-export function getPostBySlug(slug: string): Post | null {
-  return (
-    (db
-      .prepare(
-        `SELECT p.*, u.nickname as author_nickname
-       FROM posts p JOIN users u ON p.author_id = u.id
-       WHERE p.slug = ?`
-      )
-      .get(slug) as Post | undefined) ?? null
   );
 }
 
-export function getPostById(id: number): Post | null {
-  return (
-    (db
-      .prepare(
-        `SELECT p.*, u.nickname as author_nickname
-       FROM posts p JOIN users u ON p.author_id = u.id
-       WHERE p.id = ?`
-      )
-      .get(id) as Post | undefined) ?? null
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  return queryOne<Post>(
+    `SELECT p.*, u.nickname as author_nickname
+     FROM posts p JOIN users u ON p.author_id = u.id
+     WHERE p.slug = ?`,
+    [slug]
   );
 }
 
-export function getComments(postId: number): Comment[] {
-  return db
-    .prepare(
-      `SELECT c.*, u.nickname, u.tag
+export async function getPostById(id: number): Promise<Post | null> {
+  return queryOne<Post>(
+    `SELECT p.*, u.nickname as author_nickname
+     FROM posts p JOIN users u ON p.author_id = u.id
+     WHERE p.id = ?`,
+    [id]
+  );
+}
+
+export async function getComments(postId: number): Promise<Comment[]> {
+  return query<Comment>(
+    `SELECT c.*, u.nickname, u.tag
      FROM comments c JOIN users u ON c.user_id = u.id
      WHERE c.post_id = ?
-     ORDER BY c.created_at ASC`
-    )
-    .all(postId) as Comment[];
+     ORDER BY c.created_at ASC`,
+    [postId]
+  );
 }
 
 export function slugify(text: string): string {

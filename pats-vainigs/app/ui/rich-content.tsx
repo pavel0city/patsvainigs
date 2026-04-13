@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface TermData {
   [key: string]: string;
@@ -8,14 +8,41 @@ interface TermData {
 
 function TermTooltip({ text, definition }: { text: string; definition: string }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+  const isTouch = useRef(false);
+
+  const handleClickOutside = useCallback((e: MouseEvent | TouchEvent) => {
+    if (ref.current && !ref.current.contains(e.target as Node)) {
+      setOpen(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener("touchstart", handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open, handleClickOutside]);
 
   return (
-    <span className="term-wrapper">
+    <span className="term-wrapper" ref={ref}>
       <span
         className="term"
-        onClick={() => setOpen(!open)}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        onTouchStart={() => { isTouch.current = true; }}
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen((v) => !v);
+        }}
+        onMouseEnter={() => {
+          if (!isTouch.current) setOpen(true);
+        }}
+        onMouseLeave={() => {
+          if (!isTouch.current) setOpen(false);
+        }}
       >
         {text}
       </span>

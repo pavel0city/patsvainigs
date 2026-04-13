@@ -13,7 +13,7 @@ export default async function TermsPage() {
   const session = await getSession();
   if (!session || session.role !== "admin") redirect("/");
 
-  const terms = getAllTerms();
+  const terms = await getAllTerms();
 
   return (
     <div>

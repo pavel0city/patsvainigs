@@ -1,0 +1,12 @@
+INSERT INTO users VALUES(1,'admin','galvenais lohs','patsvainīgs','$2b$10$5K6W46jxDeUvjQEjnBbA0.UMUJ/OTTmsFGxF4B8EpQFuqpNnw0tVq','admin','2026-03-31 12:10:36');
+INSERT INTO terms VALUES(1,'zajebal','vidējstatistiskais letiņa stāvoklis 364 dienas gadā','2026-03-31 14:55:58');
+INSERT INTO terms VALUES(2,'pacensties','imitēt, tēlot ciešanas, vai izrādīt vispasaules netaisnīgumu darot darbu, par kuru tev godīgi un laicīgi samaksājuši','2026-03-31 15:02:46');
+INSERT INTO terms VALUES(3,'huj viņ zin','nav ne mazākās nojausmas','2026-03-31 15:09:15');
+INSERT INTO terms VALUES(4,'AiKjū','ķip gudrības rādītājs. Plakanzemieši to noliedz kā elipses','2026-03-31 15:10:13');
+INSERT INTO terms VALUES(5,'idejas','bīstamas domas, kuras bieži noved pie "pats vainīgs" situācijām','2026-03-31 15:10:40');
+INSERT INTO terms VALUES(6,'letāli','burtiski nosprāgt','2026-03-31 15:10:56');
+INSERT INTO terms VALUES(7,'netflix randomizātora alogritmu','turēt pults pogu uz leju, būdams pālī','2026-03-31 15:11:36');
+INSERT INTO terms VALUES(8,'ugunsputnā','fēnikss, jeb zipātava, laimes ieleja vai krievu super bingo','2026-03-31 15:12:32');
+INSERT INTO terms VALUES(9,'izvēle','ilūzija, burtiski','2026-03-31 15:12:44');
+INSERT INTO terms VALUES(10,'hostelis merķeļa ielā','https://www.tvnet.lv/8118338/eku-merkela-iela-kura-dega-hostelis-nosaka-ka-vidi-degradejosu','2026-03-31 15:13:45');
+INSERT INTO terms VALUES(11,'pretīgi','https://pretigi.lv/','2026-03-31 15:14:12');

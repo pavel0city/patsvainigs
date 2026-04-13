@@ -19,7 +19,7 @@ export default async function EditPostPage({
   if (!session || session.role !== "admin") redirect("/");
 
   const { id } = await params;
-  const post = getPostById(Number(id));
+  const post = await getPostById(Number(id));
   if (!post) notFound();
 
   return (

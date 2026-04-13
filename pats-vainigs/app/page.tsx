@@ -4,8 +4,8 @@ import { getComments } from "./lib/posts";
 import CommentSection from "./ui/comment-section";
 import Link from "next/link";
 
-export default function Home() {
-  const post = getLatestPost();
+export default async function Home() {
+  const post = await getLatestPost();
 
   if (!post) {
     return (
@@ -16,7 +16,7 @@ export default function Home() {
     );
   }
 
-  const comments = getComments(post.id);
+  const comments = await getComments(post.id);
 
   return (
     <div>

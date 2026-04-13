@@ -1,26 +1,20 @@
 import Link from "next/link";
 import { getSession } from "@/app/lib/auth";
 import { logout } from "@/app/actions/auth";
+import MobileMenu from "./mobile-menu";
 
 export default async function Sidebar() {
   const session = await getSession();
 
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-top">
-        <Link href="/" className="logo">
-          pats vainīgs
-        </Link>
-        <p className="tagline">vidējā vecuma un īsa dzimumlocekļa krīzes blogs par lietām, pie kurām ir vainīga valdiiba</p>
-
-        <nav className="nav">
-          <Link href="/">sasāpējies</Link>
-          <Link href="/archive">kādreiz sasāpējās</Link>
-          <Link href="/terms">terminoloģija</Link>
-          <Link href="/disclaimer">diskleimeris</Link>
-          {session?.role === "admin" && <Link href="/admin">admin</Link>}
-        </nav>
-      </div>
+  const navContent = (
+    <>
+      <nav className="nav">
+        <Link href="/">sasāpējies</Link>
+        <Link href="/archive">kādreiz sasāpējās</Link>
+        <Link href="/terms">terminoloģija</Link>
+        <Link href="/disclaimer">diskleimeris</Link>
+        {session?.role === "admin" && <Link href="/admin">admin</Link>}
+      </nav>
 
       <div className="sidebar-bottom">
         {session ? (
@@ -47,6 +41,29 @@ export default async function Sidebar() {
           <Link href="/disclaimer" className="disclaimer-link">prūfi</Link>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="sidebar sidebar-desktop">
+        <div className="sidebar-top">
+          <Link href="/" className="logo">
+            pats vainīgs
+          </Link>
+          <p className="tagline">vidējā vecuma un īsa dzimumlocekļa krīzes blogs par lietām, pie kurām ir vainīga valdiiba</p>
+          {navContent}
+        </div>
+      </aside>
+
+      {/* Mobile header + drawer */}
+      <div className="sidebar-mobile">
+        <MobileMenu>
+          <p className="tagline">vidējā vecuma un īsa dzimumlocekļa krīzes blogs par lietām, pie kurām ir vainīga valdiiba</p>
+          {navContent}
+        </MobileMenu>
+      </div>
+    </>
   );
 }

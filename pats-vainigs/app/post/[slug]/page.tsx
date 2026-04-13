@@ -9,11 +9,11 @@ export default async function PostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = getPostBySlug(slug);
+  const post = await getPostBySlug(slug);
 
   if (!post) notFound();
 
-  const comments = getComments(post.id);
+  const comments = await getComments(post.id);
 
   return (
     <div>

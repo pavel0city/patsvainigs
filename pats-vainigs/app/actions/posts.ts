@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/app/lib/db";
+import { execute, queryOne } from "@/app/lib/db";
 import { getSession } from "@/app/lib/auth";
 import { slugify } from "@/app/lib/posts";
 import { revalidatePath } from "next/cache";
@@ -20,16 +20,17 @@ export async function createPost(formData: FormData) {
   }
 
   let slug = slugify(title);
-  const existing = db
-    .prepare("SELECT id FROM posts WHERE slug = ?")
-    .get(slug);
+  const existing = await queryOne<{ id: number }>(
+    "SELECT id FROM posts WHERE slug = ?", [slug]
+  );
   if (existing) {
     slug = `${slug}-${Date.now()}`;
   }
 
-  db.prepare(
-    "INSERT INTO posts (title, slug, content, author_id) VALUES (?, ?, ?, ?)"
-  ).run(title, slug, content, session.id);
+  await execute(
+    "INSERT INTO posts (title, slug, content, author_id) VALUES (?, ?, ?, ?)",
+    [title, slug, content, session.id]
+  );
 
   revalidatePath("/");
   revalidatePath("/archive");
@@ -50,16 +51,17 @@ export async function updatePost(formData: FormData) {
     return { error: "A post needs words. Shocking concept." };
   }
 
-  const post = db.prepare("SELECT slug FROM posts WHERE id = ?").get(id) as
-    | { slug: string }
-    | undefined;
+  const post = await queryOne<{ slug: string }>(
+    "SELECT slug FROM posts WHERE id = ?", [id]
+  );
   if (!post) {
     return { error: "Post not found. It's gone. Like your patience." };
   }
 
-  db.prepare(
-    "UPDATE posts SET title = ?, content = ?, updated_at = datetime('now') WHERE id = ?"
-  ).run(title, content, id);
+  await execute(
+    "UPDATE posts SET title = ?, content = ?, updated_at = datetime('now') WHERE id = ?",
+    [title, content, id]
+  );
 
   revalidatePath("/");
   revalidatePath("/archive");
@@ -74,7 +76,7 @@ export async function deletePost(formData: FormData) {
   }
 
   const id = Number(formData.get("id"));
-  db.prepare("DELETE FROM posts WHERE id = ?").run(id);
+  await execute("DELETE FROM posts WHERE id = ?", [id]);
 
   revalidatePath("/");
   revalidatePath("/archive");

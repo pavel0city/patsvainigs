@@ -1,22 +1,29 @@
-import { db } from "@/app/lib/db";
+import { execute, queryOne } from "@/app/lib/db";
 import { hashSync } from "bcryptjs";
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 export async function GET() {
-  const existing = db
-    .prepare("SELECT id FROM users WHERE username = 'admin'")
-    .get();
+  try {
+    const existing = await queryOne<{ id: number }>(
+      "SELECT id FROM users WHERE username = 'admin'"
+    );
 
-  if (existing) {
-    return NextResponse.json({ message: "Admin already exists. Pats vainīgs." });
+    if (existing) {
+      return NextResponse.json({ message: "Admin already exists. Pats vainīgs." });
+    }
+
+    const hash = hashSync("admin", 10);
+    await execute(
+      "INSERT INTO users (username, nickname, tag, password_hash, role) VALUES (?, ?, ?, ?, ?)",
+      ["admin", "the author", "frustrated", hash, "admin"]
+    );
+
+    return NextResponse.json({
+      message: "Admin created. username: admin, password: admin. Change it. Obviously.",
+    });
+  } catch (e) {
+    return NextResponse.json({ error: String(e) }, { status: 500 });
   }
-
-  const hash = hashSync("admin", 10);
-  db.prepare(
-    "INSERT INTO users (username, nickname, tag, password_hash, role) VALUES (?, ?, ?, ?, ?)"
-  ).run("admin", "the author", "frustrated", hash, "admin");
-
-  return NextResponse.json({
-    message: "Admin created. username: admin, password: admin. Change it. Obviously.",
-  });
 }

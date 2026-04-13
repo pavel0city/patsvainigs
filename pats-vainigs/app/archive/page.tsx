@@ -5,8 +5,8 @@ export const metadata = {
   title: "kādreiz sasāpējās | pats vainīgs",
 };
 
-export default function Archive() {
-  const posts = getAllPosts();
+export default async function Archive() {
+  const posts = await getAllPosts();
 
   if (posts.length === 0) {
     return (

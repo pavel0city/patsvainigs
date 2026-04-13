@@ -4,8 +4,8 @@ export const metadata = {
   title: "terminoloģija | pats vainīgs",
 };
 
-export default function TermsPage() {
-  const terms = getAllTerms();
+export default async function TermsPage() {
+  const terms = await getAllTerms();
 
   if (terms.length === 0) {
     return (
