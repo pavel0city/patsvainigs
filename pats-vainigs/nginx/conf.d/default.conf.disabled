@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name patsvainigs.lv www.patsvainigs.lv;
+    server_name patsvainigs.lv;
 
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
@@ -10,21 +10,6 @@ server {
     location / {
         return 301 https://patsvainigs.lv$request_uri;
     }
-}
-
-server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
-    http2 on;
-    server_name www.patsvainigs.lv;
-
-    ssl_certificate /etc/letsencrypt/live/patsvainigs.lv/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/patsvainigs.lv/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    return 301 https://patsvainigs.lv$request_uri;
 }
 
 server {

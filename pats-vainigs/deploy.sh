@@ -51,7 +51,7 @@ ssh "$SERVER" "cd $REMOTE_DIR/$REPO_SUBDIR && docker compose build app && docker
 echo "==> Requesting Let's Encrypt certificate"
 ssh "$SERVER" "cd $REMOTE_DIR/$REPO_SUBDIR && docker compose run --rm --entrypoint '' certbot \
   certbot certonly --webroot -w /var/www/certbot \
-    -d $DOMAIN -d www.$DOMAIN \
+    -d $DOMAIN \
     --email $EMAIL --agree-tos --no-eff-email --non-interactive"
 
 echo "==> Enabling HTTPS nginx config and reloading"
