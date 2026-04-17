@@ -10,6 +10,7 @@ function TermTooltip({ text, definition }: { text: string; definition: string })
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const isTouch = useRef(false);
+  const href = isUrl(definition) ? definition.trim() : null;
 
   const handleClickOutside = useCallback((e: MouseEvent | TouchEvent) => {
     if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -28,24 +29,36 @@ function TermTooltip({ text, definition }: { text: string; definition: string })
     };
   }, [open, handleClickOutside]);
 
+  const hoverHandlers = {
+    onMouseEnter: () => { if (!isTouch.current) setOpen(true); },
+    onMouseLeave: () => { if (!isTouch.current) setOpen(false); },
+    onTouchStart: () => { isTouch.current = true; },
+  };
+
   return (
     <span className="term-wrapper" ref={ref}>
-      <span
-        className="term"
-        onTouchStart={() => { isTouch.current = true; }}
-        onClick={(e) => {
-          e.preventDefault();
-          setOpen((v) => !v);
-        }}
-        onMouseEnter={() => {
-          if (!isTouch.current) setOpen(true);
-        }}
-        onMouseLeave={() => {
-          if (!isTouch.current) setOpen(false);
-        }}
-      >
-        {text}
-      </span>
+      {href ? (
+        <a
+          className="term term-link"
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...hoverHandlers}
+        >
+          {text}
+        </a>
+      ) : (
+        <span
+          className="term"
+          {...hoverHandlers}
+          onClick={(e) => {
+            e.preventDefault();
+            setOpen((v) => !v);
+          }}
+        >
+          {text}
+        </span>
+      )}
       {open && (
         <span className="term-tooltip">{definition}</span>
       )}
@@ -55,6 +68,10 @@ function TermTooltip({ text, definition }: { text: string; definition: string })
 
 function UnknownTerm({ text }: { text: string }) {
   return <span className="term term-unknown">{text}</span>;
+}
+
+function isUrl(value: string): boolean {
+  return /^https?:\/\/\S+$/i.test(value.trim());
 }
 
 type InlineNode =
